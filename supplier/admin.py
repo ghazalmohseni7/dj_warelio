@@ -7,3 +7,4 @@ from supplier.models import Supplier
 class AdminSupplier(admin.ModelAdmin):
     list_display = ['id', 'phone', 'name']
     ordering = ['id', 'phone', 'name']
+    search_fields = ['phone', 'name']

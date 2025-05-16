@@ -7,3 +7,4 @@ from category.models import Category
 class AdminProject(admin.ModelAdmin):
     list_display = ['id', 'name']
     ordering = ['id', 'name']
+    search_fields = ['name']
