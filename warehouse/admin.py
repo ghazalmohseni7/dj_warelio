@@ -7,3 +7,4 @@ from warehouse.models import WareHouse
 class AdminWareHouse(admin.ModelAdmin):
     list_display = ['id', 'name', 'location', 'project__name']
     ordering = ['id', 'name', 'location', 'project__name']
+    autocomplete_fields = ['project']

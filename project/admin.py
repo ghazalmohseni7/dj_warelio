@@ -7,3 +7,4 @@ from project.models import Project
 class AdminProject(admin.ModelAdmin):
     list_display = ['id', 'name']
     ordering = ['id', 'name']
+    search_fields = ['name']
