@@ -13,14 +13,14 @@ class WareHouseViewSets(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         project_id = request.data.get('project_id')
-        user_id = request.data.get('user_id')
+        manager_id = request.data.get('manager_id')
         get_object_or_404(Project, id=project_id)
-        get_object_or_404(User, id=user_id)
+        get_object_or_404(User, id=manager_id)
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         project_id = request.data.get('project_id')
-        user_id = request.data.get('user_id')
+        manager_id = request.data.get('manager_id')
         get_object_or_404(Project, id=project_id)
-        get_object_or_404(User, id=user_id)
+        get_object_or_404(User, id=manager_id)
         return super().update(request, *args, **kwargs)
