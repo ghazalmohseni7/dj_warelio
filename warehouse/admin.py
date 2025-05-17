@@ -8,3 +8,4 @@ class AdminWareHouse(admin.ModelAdmin):
     list_display = ['id', 'name', 'location', 'project__name', 'manager__username']
     ordering = ['id', 'name', 'location', 'project__name', 'manager__username']
     autocomplete_fields = ['project', 'manager']
+    search_fields = ['id', 'name']  # add for inventory

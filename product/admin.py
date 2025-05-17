@@ -8,3 +8,4 @@ class AdminProduct(admin.ModelAdmin):
     list_display = ['name', 'code', 'price', 'category__name', 'supplier__name']
     ordering = ['name', 'code', 'price', 'category__name', 'supplier__name']
     autocomplete_fields = ['category', 'supplier']
+    search_fields = ['id', 'name']  # add for inventory
