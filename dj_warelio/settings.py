@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'product',
     'inventory',
     'stock_entry',
+    'stock_request',
 
 ]
 
