@@ -11,3 +11,6 @@ class Inventory(models.Model):
 
     class Meta:
         unique_together = ('product', 'warehouse')
+
+    def __str__(self):
+        return f'Inventory for warehouse "{self.warehouse.name}" containing product "{self.product.name}"'
