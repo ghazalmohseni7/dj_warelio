@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from stock_entry.models import StockEntry
 from stock_entry.serializers import StockEntrySerializer
+from inventory.models import Inventory
 
 
 # Create your views here.
@@ -10,3 +11,13 @@ class StockEntryViewSets(ModelViewSet):
     queryset = StockEntry.objects.select_related('warehouse').select_related('product').select_related(
         'received_by').all()
     serializer_class = StockEntrySerializer
+
+    def perform_create(self, serializer):
+        stock_entry = serializer.save()  # negah dar ino
+        inventory, created = Inventory.objects.get_or_create(warehouse=stock_entry.warehouse,
+                                                             product=stock_entry.product,
+                                                             defaults={
+                                                                 'quantity': stock_entry.quantity})  # if it is created then use this value
+        if not created:
+            inventory.quantity += stock_entry.quantity
+            inventory.save()
