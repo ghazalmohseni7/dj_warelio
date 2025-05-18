@@ -37,4 +37,5 @@ class StockEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockEntry
-        fields = ['quantity', 'warehouse_id', 'product_id', 'received_by_id', 'warehouse', 'product', 'received_by']
+        fields = ['id', 'quantity', 'warehouse_id', 'product_id', 'received_by_id', 'warehouse', 'product',
+                  'received_by']
