@@ -30,3 +30,12 @@ class InventorySerializer(serializers.ModelSerializer):
         if not Product.objects.filter(id=value).exists():
             raise ValidationError("Related product does not exist.")
         return value
+
+
+class SummarySerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    warehouse_id = serializers.IntegerField()
+    total_quantity = serializers.IntegerField()
+    product = ProductSerializer()
+    warehouse = WareHouseSerializer()
+
