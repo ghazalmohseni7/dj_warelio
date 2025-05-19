@@ -22,6 +22,7 @@ class InventoryViewSets(ModelViewSet):
         product_id = request.query_params.get('product_id')
         qs = self.queryset
 
+        # option 1
         if warehouse_id:
             qs = qs.filter(warehouse_id=warehouse_id)
             summary = qs.values('product_id', 'warehouse_id').annotate(total_quantity=Sum('quantity')).order_by(
@@ -43,3 +44,8 @@ class InventoryViewSets(ModelViewSet):
 
         serializer = SummarySerializer(data=summary, many=True)
         return Response(serializer.initial_data)
+
+        # option 2 , more optimized but you cant use the nested serializer
+
+        # x = qs.values('product__name', 'warehouse', 'product_id', 'warehouse_id').annotate(
+        #     total_quantity=Sum('quantity'))
