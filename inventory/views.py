@@ -31,21 +31,34 @@ class InventoryViewSets(ModelViewSet):
             summary = qs.values('product_id', 'warehouse_id').annotate(total_quantity=Sum('quantity')).order_by(
                 'product_id')
         if not product_id and not warehouse_id:
-            pass
+            summary = qs.values('product_id', 'warehouse_id').annotate(total_quantity=Sum('quantity')).order_by(
+                'warehouse_id')
 
 
 
 
-        summary = qs.values('product_id', 'warehouse_id').annotate(total_quantity=Sum('quantity')).order_by(
-            'warehouse_id')
 
         summary = list(summary)
         for item in summary:
+            print(222222222222,item)
+            from django.forms.models import model_to_dict
             product = Product.objects.get(id=item['product_id'])
             warehouse = WareHouse.objects.get(id=item['warehouse_id'])
-            item['product'] = ProductSerializer(product).data
-            item['warehouse'] = WareHouseSerializer(warehouse).data
+
+
+            # product =item.prodcut
+            # warehouse = item.warehouse
+            # item['product'] = ProductSerializer(product).data
+            # item['warehouse'] = WareHouseSerializer(warehouse).data
+            item['product'] = model_to_dict(product)
+            item['warehouse'] =model_to_dict(warehouse)
+
         print(1111111111111, summary, type(summary))  #
         serializer = SummarySerializer(data=summary, many=True)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data)
+        # serializer.is_valid(raise_exception=True)
+        print("//////////////////")
+        x=qs.values('product__name','warehouse','product_id', 'warehouse_id').annotate(total_quantity=Sum('quantity'))
+        for z in x:
+            print(z)
+        print("//////////////////")
+        return Response(serializer.initial_data)
