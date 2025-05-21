@@ -19,6 +19,7 @@ class StockRequest(models.Model):
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     requested_at = models.DateTimeField(auto_now_add=True)
+    is_complete = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
         return f"Request #{self.id} by {self.requested_by}"

@@ -15,6 +15,7 @@ class StockRequestSerializer(serializers.ModelSerializer):
     warehouse_id = serializers.IntegerField(write_only=True)
     requested_by_id = serializers.IntegerField(write_only=True)
     approved_by_id = serializers.IntegerField(write_only=True)
+    is_complete = serializers.BooleanField()
 
     class Meta:
         model = StockRequest
