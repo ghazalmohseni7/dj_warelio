@@ -14,7 +14,7 @@ class StockRequestViewSets(ModelViewSet):
 
     @action(detail=True, methods=['patch'], url_path='complete')
     def complete_stock_request(self, request, pk=None):
-        obj=get_object_or_404(StockRequest,id=pk)
+        obj = get_object_or_404(StockRequest, id=pk)
         is_complete = request.query_params.get('is_complete')
 
         if is_complete in ['true', '1', 'True']:
@@ -34,10 +34,17 @@ class StockRequestItemViewSets(ModelViewSet):
     def get_queryset(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
         queryset = StockRequestItem.objects.select_related('stock_request', 'product').filter(
-            stock_request_id=stock_request_id)
+            stock_request_id=stock_request_id
+        )
+
+        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+            queryset = queryset.filter(
+                stock_request__is_complete=False,
+                stock_request__status='pending'
+            )
+
         return queryset
 
     def get_serializer_context(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
         return {'stock_request_id': stock_request_id}
-
