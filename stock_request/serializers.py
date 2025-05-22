@@ -4,6 +4,7 @@ from stock_request.models import StockRequest, StockRequestItem
 from utils.user_serializer import UserSerializer, User
 from warehouse.serializers import WareHouseSerializer, WareHouse
 from product.serializers import ProductSerializer, Product
+from inventory.models import Inventory
 
 
 class StockRequestSerializer(serializers.ModelSerializer):
@@ -20,7 +21,7 @@ class StockRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockRequest
         fields = ['id', 'warehouse', 'warehouse_id', 'requested_by', 'requested_by_id', 'approved_by', 'approved_by_id',
-                  'status', 'requested_at']
+                  'status', 'requested_at', 'is_complete']
 
     def validate_warehouse_id(self, value):
         if value is None:
@@ -57,8 +58,29 @@ class StockRequestItemSerializer(serializers.ModelSerializer):
     def validate_product_id(self, value):
         if value is None:
             return value
-        if not Product.objects.filter(id=value).exists():
-            raise ValidationError("Related Product does not exist.")
+
+        try:
+            stock_request = StockRequest.objects.get(id=self.context['stock_request_id'])
+        except StockRequest.DoesNotExist:
+            raise ValidationError("Invalid stock request.")
+
+        warehouse = stock_request.warehouse
+
+        try:
+            inventory = Inventory.objects.get(
+                warehouse_id=warehouse.id,
+                product_id=value,
+                quantity__gt=0
+            )
+        except Inventory.DoesNotExist:
+            raise ValidationError("Product is not available in the selected warehouse.")
+
+        requested_quantity = int(self.initial_data.get('quantity', 0))
+        if inventory.quantity < requested_quantity:
+            raise ValidationError(
+                f"There are only {inventory.quantity} units left, but you requested {requested_quantity}."
+            )
+
         return value
 
     def create(self, validated_data):
