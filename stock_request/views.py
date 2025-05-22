@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from stock_request.models import StockRequest, StockRequestItem
 from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer
+from pubsub.publisher import publish
 
 
 # Create your views here.
@@ -13,7 +14,7 @@ class StockRequestViewSets(ModelViewSet):
     queryset = StockRequest.objects.select_related('warehouse', 'requested_by', 'approved_by').all()
     serializer_class = StockRequestSerializer
 
-    @action(detail=True, methods=['patch'], url_path='complete')
+    @action(detail=True, methods=['get'], url_path='complete', url_name='complete')
     def complete_stock_request(self, request, pk=None):
         obj = get_object_or_404(StockRequest, id=pk)
         is_complete = request.query_params.get('is_complete')
@@ -24,6 +25,7 @@ class StockRequestViewSets(ModelViewSet):
             else:
                 StockRequest.objects.filter(id=pk).update(is_complete=True)
                 # call the task that sends info
+                publish({'stock_request_id': pk, 'warehouse_id': obj.warehouse.id})
             return Response({'status': 'Marked complete'}, status=200)
         else:
             return Response({'error': 'Invalid or missing `is_complete`'}, status=400)
