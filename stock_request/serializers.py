@@ -83,5 +83,12 @@ class StockRequestItemSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_quantity(self, value):
+        if self.context['method'] == 'POST':
+            if value < 0:
+                raise ValidationError('for create you can not enter negative quantity')
+
+        return value
+
     def create(self, validated_data):
         return StockRequestItem.objects.create(stock_request_id=self.context['stock_request_id'], **validated_data)

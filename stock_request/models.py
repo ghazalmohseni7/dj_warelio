@@ -28,4 +28,4 @@ class StockRequest(models.Model):
 class StockRequestItem(models.Model):
     stock_request = models.ForeignKey(StockRequest, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    quantity = models.IntegerField()

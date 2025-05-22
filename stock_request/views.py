@@ -49,7 +49,8 @@ class StockRequestItemViewSets(ModelViewSet):
 
     def get_serializer_context(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
-        return {'stock_request_id': stock_request_id}
+        method = self.request.mehod
+        return {'stock_request_id': stock_request_id, 'method': method}
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
