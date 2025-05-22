@@ -3,10 +3,12 @@ from django.forms.models import model_to_dict
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from inventory.models import Inventory
 from inventory.serializers import InventorySerializer, SummarySerializer
 from product.serializers import ProductSerializer, Product
 from warehouse.serializers import WareHouseSerializer, WareHouse
+from inventory.filters import InventoryFilter
 
 
 # Create your views here.
@@ -15,6 +17,8 @@ class InventoryViewSets(ModelViewSet):
     http_method_names = ['get']
     queryset = Inventory.objects.select_related('product').select_related('warehouse').all()
     serializer_class = InventorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = InventoryFilter
 
     @action(detail=False, methods=['get'], url_path='summary_items')
     def summary_items(self, request):
