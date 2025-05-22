@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 from stock_request.models import StockRequest, StockRequestItem
 from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer
 
@@ -29,6 +30,7 @@ class StockRequestViewSets(ModelViewSet):
 
 
 class StockRequestItemViewSets(ModelViewSet):
+    http_method_names = ['get', 'post', 'delete', 'patch']
     serializer_class = StockRequestItemSerializer
 
     def get_queryset(self):
@@ -48,3 +50,12 @@ class StockRequestItemViewSets(ModelViewSet):
     def get_serializer_context(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
         return {'stock_request_id': stock_request_id}
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        instance.quantity += serializer.validated_data['quantity']
+        instance.save()
+
+        return Response(self.get_serializer(instance).data, status=status.HTTP_200_OK)
