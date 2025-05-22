@@ -49,7 +49,7 @@ class StockRequestItemViewSets(ModelViewSet):
 
     def get_serializer_context(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
-        method = self.request.mehod
+        method = self.request.method
         return {'stock_request_id': stock_request_id, 'method': method}
 
     def update(self, request, *args, **kwargs):
