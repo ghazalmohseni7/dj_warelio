@@ -9,14 +9,13 @@ from stock_request.serializers import StockRequestSerializer, StockRequestItemSe
     ActionIsCompleteSerializer
 from pubsub.publisher import publish
 from inventory.models import Inventory
+from utils.action_data_deserializer import deserialize
 
 
 # Create your views here.
 class StockRequestViewSets(ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = StockRequest.objects.select_related('warehouse', 'requested_by', 'approved_by').all()
-
-    # serializer_class = StockRequestSerializer
 
     def get_serializer_class(self):
         if self.action == 'approve_stock_request':
@@ -29,10 +28,9 @@ class StockRequestViewSets(ModelViewSet):
     @action(detail=True, methods=['post'], url_path='complete', url_name='complete')
     def complete_stock_request(self, request, pk=None):
         obj = get_object_or_404(StockRequest.objects.select_related('warehouse'), id=pk)
+
         # deserializer
-        data_serializer = ActionIsCompleteSerializer(data=request.data)
-        data_serializer.is_valid(raise_exception=True)
-        is_complete = data_serializer.validated_data['complete']
+        is_complete = deserialize(data=request.data, serializer=ActionIsCompleteSerializer)['complete']
 
         if is_complete == 'True':
             if obj.is_complete:
@@ -52,9 +50,7 @@ class StockRequestViewSets(ModelViewSet):
         stock_request = get_object_or_404(StockRequest.objects.select_related('warehouse'), id=pk)
 
         # deserializer
-        data_serializer = ActionStatusSerializer(data=request.data)
-        data_serializer.is_valid(raise_exception=True)
-        status = data_serializer.validated_data['action']
+        status = deserialize(data=request.data, serializer=ActionStatusSerializer)['action']
 
         if status == 'approve':
             stock_request.status = 'approved'
@@ -84,12 +80,12 @@ class StockRequestViewSets(ModelViewSet):
                 inventory.quantity -= item.quantity
                 inventory.save()
 
-            return Response({'status': 'approved'}, status=200)
+            return Response({'status': 'approved'}, status=status.HTTP_200_OK)
         else:
             stock_request.status = 'rejected'
             # stock_request.approved_by = request.user
             stock_request.save(update_fields=['status', 'approved_by'])
-            return Response({'status': 'rejected'}, status=200)
+            return Response({'status': 'rejected'}, status=status.HTTP_200_OK)
 
 
 class StockRequestItemViewSets(ModelViewSet):
