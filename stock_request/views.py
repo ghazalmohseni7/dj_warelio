@@ -1,18 +1,27 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from stock_request.models import StockRequest, StockRequestItem
-from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer
+from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer, ActionStatusSerializer
 from pubsub.publisher import publish
+from inventory.models import Inventory
 
 
 # Create your views here.
 class StockRequestViewSets(ModelViewSet):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     queryset = StockRequest.objects.select_related('warehouse', 'requested_by', 'approved_by').all()
-    serializer_class = StockRequestSerializer
+
+    # serializer_class = StockRequestSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'approve_stock_request':
+            return ActionStatusSerializer
+        else:
+            return StockRequestSerializer
 
     @action(detail=True, methods=['get'], url_path='complete', url_name='complete')
     def complete_stock_request(self, request, pk=None):
@@ -29,6 +38,51 @@ class StockRequestViewSets(ModelViewSet):
             return Response({'status': 'Marked complete'}, status=200)
         else:
             return Response({'error': 'Invalid or missing `is_complete`'}, status=400)
+
+    @action(detail=True, methods=['post'], url_path='approve', url_name='approve')
+    @transaction.atomic
+    def approve_stock_request(self, request, pk=None):
+        stock_request = get_object_or_404(StockRequest.objects.select_related('warehouse'), id=pk)
+
+        # deserializer
+        data_serializer = ActionStatusSerializer(data=request.data)
+        data_serializer.is_valid(raise_exception=True)
+        status = data_serializer.validated_data['action']
+
+        if status == 'approve':
+            stock_request.status = 'approved'
+            # stock_request.approved_by = request.user
+            stock_request.save(update_fields=['status', 'approved_by'])
+
+            items = stock_request.items.select_related('product')
+            for item in items:
+
+                inventory = get_object_or_404(
+                    Inventory,
+                    warehouse_id=stock_request.warehouse_id,
+                    product_id=item.product_id
+                )
+                if inventory.quantity < item.quantity:
+                    stock_request.status = 'rejected'
+                    # stock_request.approved_by = request.user
+                    stock_request.save(update_fields=['status', 'approved_by'])
+
+                    return Response(
+                        {
+                            'status': 'rejected',
+                            'error': f'Insufficient inventory for product {item.product.name}'
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                inventory.quantity -= item.quantity
+                inventory.save()
+
+            return Response({'status': 'approved'}, status=200)
+        else:
+            stock_request.status = 'rejected'
+            # stock_request.approved_by = request.user
+            stock_request.save(update_fields=['status', 'approved_by'])
+            return Response({'status': 'rejected'}, status=200)
 
 
 class StockRequestItemViewSets(ModelViewSet):

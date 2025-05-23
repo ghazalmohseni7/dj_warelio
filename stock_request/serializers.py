@@ -92,3 +92,12 @@ class StockRequestItemSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return StockRequestItem.objects.create(stock_request_id=self.context['stock_request_id'], **validated_data)
+
+
+class ActionStatusSerializer(serializers.Serializer):
+    ACTION_CHOICES = [
+        ('approve', 'Approve'),
+        ('reject', 'Reject'),
+    ]
+    action = serializers.ChoiceField(choices=ACTION_CHOICES, write_only=True)
+    status = serializers.CharField(read_only=True)
