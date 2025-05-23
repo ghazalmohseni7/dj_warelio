@@ -5,7 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from stock_request.models import StockRequest, StockRequestItem
-from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer, ActionStatusSerializer
+from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer, ActionStatusSerializer, \
+    ActionIsCompleteSerializer
 from pubsub.publisher import publish
 from inventory.models import Inventory
 
@@ -20,24 +21,30 @@ class StockRequestViewSets(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'approve_stock_request':
             return ActionStatusSerializer
+        elif self.action == 'complete_stock_request':
+            return ActionIsCompleteSerializer
         else:
             return StockRequestSerializer
 
-    @action(detail=True, methods=['get'], url_path='complete', url_name='complete')
+    @action(detail=True, methods=['post'], url_path='complete', url_name='complete')
     def complete_stock_request(self, request, pk=None):
-        obj = get_object_or_404(StockRequest, id=pk)
-        is_complete = request.query_params.get('is_complete')
+        obj = get_object_or_404(StockRequest.objects.select_related('warehouse'), id=pk)
+        # deserializer
+        data_serializer = ActionIsCompleteSerializer(data=request.data)
+        data_serializer.is_valid(raise_exception=True)
+        is_complete = data_serializer.validated_data['complete']
 
-        if is_complete in ['true', '1', 'True']:
+        if is_complete == 'True':
             if obj.is_complete:
-                return Response({'error': 'This request is already being processed and completed`'}, status=400)
+                return Response({'status': 'This request is already being processed and completed`'},
+                                status=status.HTTP_400_BAD_REQUEST)
             else:
-                StockRequest.objects.filter(id=pk).update(is_complete=True)
+                obj.is_complete = True
+                obj.save(update_fields=['is_complete'])
+
                 # call the task that sends info
-                publish({'stock_request_id': pk, 'warehouse_id': obj.warehouse.id})
-            return Response({'status': 'Marked complete'}, status=200)
-        else:
-            return Response({'error': 'Invalid or missing `is_complete`'}, status=400)
+                publish({'stock_request_id': pk, 'warehouse_id': obj.warehouse_id})
+            return Response({'status': 'Marked complete'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='approve', url_name='approve')
     @transaction.atomic

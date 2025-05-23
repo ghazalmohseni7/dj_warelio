@@ -101,3 +101,11 @@ class ActionStatusSerializer(serializers.Serializer):
     ]
     action = serializers.ChoiceField(choices=ACTION_CHOICES, write_only=True)
     status = serializers.CharField(read_only=True)
+
+
+class ActionIsCompleteSerializer(serializers.Serializer):
+    ACTION_CHOICES = [
+        ('true', 'True'),
+    ]
+    complete = serializers.ChoiceField(choices=ACTION_CHOICES, write_only=True)
+    status = serializers.CharField(read_only=True)
