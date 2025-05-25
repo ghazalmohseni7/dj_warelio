@@ -3,6 +3,7 @@ from django.forms.models import model_to_dict
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from inventory.models import Inventory
@@ -20,6 +21,7 @@ class InventoryViewSets(ModelViewSet):
     serializer_class = InventorySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = InventoryFilter
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         description="Summarize inventory quantities grouped by product and warehouse.",
