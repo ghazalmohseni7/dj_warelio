@@ -4,12 +4,14 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from stock_request.models import StockRequest, StockRequestItem
 from stock_request.serializers import StockRequestSerializer, StockRequestItemSerializer, ActionStatusSerializer, \
     ActionIsCompleteSerializer
 from pubsub.publisher import publish
 from inventory.models import Inventory
 from utils.action_data_deserializer import deserialize
+from stock_request.permissions import SRIPermissions
 
 
 # Create your views here.
@@ -91,6 +93,7 @@ class StockRequestViewSets(ModelViewSet):
 class StockRequestItemViewSets(ModelViewSet):
     http_method_names = ['get', 'post', 'delete', 'patch']
     serializer_class = StockRequestItemSerializer
+    permission_classes = [IsAuthenticated, SRIPermissions]
 
     def get_queryset(self):
         stock_request_id = self.kwargs['stock_request_pk_pk']
