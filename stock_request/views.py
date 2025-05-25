@@ -11,13 +11,14 @@ from stock_request.serializers import StockRequestSerializer, StockRequestItemSe
 from pubsub.publisher import publish
 from inventory.models import Inventory
 from utils.action_data_deserializer import deserialize
-from stock_request.permissions import SRIPermissions
+from stock_request.permissions import SRIPermissions, SRPermissions
 
 
 # Create your views here.
 class StockRequestViewSets(ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = StockRequest.objects.select_related('warehouse', 'requested_by', 'approved_by').all()
+    permission_classes = [IsAuthenticated, SRPermissions]
 
     def get_serializer_class(self):
         if self.action == 'approve_stock_request':
