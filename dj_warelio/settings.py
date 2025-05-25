@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -147,4 +148,18 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT', 'Bearer',),  # you can now prefix your token with both of them
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=int(os.getenv("ACCESS_TOKEN_LIFETIME"))),  # /auth/jwt/create/
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFETIME"))),  # /auth/jwt/refresh
+}
+
+DJOSER = {
+    'SERIALIZERS': {'user_create': 'core.serializers.OverrideDJOSERUserCreateSerializer2',
+                    'current_user': 'core.serializers.CurrentUserSerializer', },
 }
