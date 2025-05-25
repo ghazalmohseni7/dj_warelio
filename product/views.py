@@ -1,15 +1,18 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from product.models import Product
 from product.serializers import ProductSerializer
 from supplier.models import Supplier
 from category.models import Category
+from product.permissions import ProductPermissions
 
 
 # Create your views here.
 class ProductViewSets(ModelViewSet):
     queryset = Product.objects.select_related('category').select_related('supplier').all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated, ProductPermissions]
 
     def create(self, request, *args, **kwargs):
         supplier_id = request.data.get('supplier_id')
