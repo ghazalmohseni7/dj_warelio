@@ -45,7 +45,8 @@ class StockRequestViewSets(ModelViewSet):
 
                 # call the task that sends info
                 publish({'stock_request_id': pk, 'warehouse_id': obj.warehouse_id})
-            return Response({'status': 'Marked complete'}, status=status.HTTP_200_OK)
+                return Response({'status': 'Marked complete'}, status=status.HTTP_200_OK)
+        return Response({'status': 'Marked complete'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='approve', url_name='approve')
     @transaction.atomic
@@ -53,9 +54,9 @@ class StockRequestViewSets(ModelViewSet):
         stock_request = get_object_or_404(StockRequest.objects.select_related('warehouse'), id=pk)
 
         # deserializer
-        status = deserialize(data=request.data, serializer=ActionStatusSerializer)['action']
+        status_ = deserialize(data=request.data, serializer=ActionStatusSerializer)['action']
 
-        if status == 'approve':
+        if status_ == 'approve':
             stock_request.status = 'approved'
             # stock_request.approved_by = request.user
             stock_request.save(update_fields=['status', 'approved_by'])
