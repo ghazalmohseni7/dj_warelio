@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "Ensuring directories exist..."
 mkdir -p /Warelio/static
 

@@ -12,9 +12,12 @@ def rabbitmq_connection() -> Tuple[BlockingConnection, BlockingChannel]:
     exchange = os.getenv("RABBIT_EXCHANGE_NAME")
     queue = os.getenv("RABBIT_QUEUE")
     routing_key = os.getenv("RABBIT_ROUTING_KEY")
+    username = os.getenv("RABBIT_USERNAME")
+    password = os.getenv("RABBIT_password")
 
     # create connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+    credentials = pika.PlainCredentials(username=username, password=password)
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, credentials=credentials))
 
     # declare channel
     channel = connection.channel()
