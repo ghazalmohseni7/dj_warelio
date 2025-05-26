@@ -53,3 +53,9 @@ services:
     volumes:
       - ./static:/Warelio/static
 
+volumes:
+  psql_data:
+  rabbitmq_data:
+
+networks:
+  warelionet:
