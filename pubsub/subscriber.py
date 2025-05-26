@@ -1,8 +1,10 @@
 import os
+import sys
 import json
 import pika
 import requests
 from dotenv import load_dotenv
+sys.path.append('..')
 from pubsub.connection import rabbitmq_connection
 
 load_dotenv()
