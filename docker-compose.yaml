@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:14
+    container_name: warelio_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: warelio
+    ports:
+      - "5434:5432"
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    networks:
+      - warelionet
+
+
+  broker:
+    image: rabbitmq:3.12-management
+    container_name: warelio_pubsub
+    environment:
+      RABBITMQ_DEFAULT_USER: warelio
+      RABBITMQ_DEFAULT_PASS: warelio
+    ports:
+      - "5672:5672"     # AMQP port
+      - "15672:15672"   # Management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - warelionet
+
+  dj:
+    build: .
+    container_name: dj
+    ports:
+       - "8001:8001"
+    depends_on:
+      - db
+      - broker
+    volumes:
+      - ./static:/Warelio/static
+    networks:
+      - warelionet
+
+  nginx_default:
+    build: ./nginx
+    container_name: nginx_dj
+    ports:
+      - "80:80"
+    depends_on:
+      - dj
+    networks:
+      - warelionet
+    volumes:
+      - ./static:/Warelio/static
+

@@ -1,1 +1,26 @@
-envw
+# Virtual environment (local)
+venv/
+.virtualenv/
+envw/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django logs
+*.log
+
+# Media files (uploaded by users)
+media/
+
+# Static files (collected separately)
+static/
+
+# Test coverage reports
+htmlcov/
+
+# Celery-related files
+celerybeat-schedule
+celerybeat.pid
