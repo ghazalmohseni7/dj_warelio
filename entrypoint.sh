@@ -24,7 +24,6 @@ python manage.py collectstatic --noinput
 # Run Django, pubsub scripts in the background
 echo "Starting services..."
 /Warelio/bashes/start_pubsub_subscriber.sh &
-wait
 /Warelio/bashes/start_django.sh &
 
 
