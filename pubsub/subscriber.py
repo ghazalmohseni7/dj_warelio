@@ -40,5 +40,5 @@ def subscribe():
     channel.start_consuming()
 
 
-if __name__ == "__main__":
-    subscribe()
+# if __name__ == "__main__":
+subscribe()
