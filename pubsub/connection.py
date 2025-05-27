@@ -48,18 +48,3 @@ def rabbitmq_connection() -> Tuple[BlockingConnection, BlockingChannel]:
                 raise
             time.sleep(retry_delay)
 
-    # connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, credentials=credentials))
-    #
-    # # declare channel
-    # channel = connection.channel()
-    #
-    # # declare exchange
-    # channel.exchange_declare(exchange=exchange, exchange_type=exchange_type, durable=True)
-    #
-    # # declare persistemt queue
-    # channel.queue_declare(queue=queue, durable=True)
-    #
-    # # bind queue , exchange with routing key
-    # channel.queue_bind(exchange=exchange, queue=queue, routing_key=routing_key)
-    #
-    # return connection, channel
