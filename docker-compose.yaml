@@ -23,6 +23,11 @@ services:
     ports:
       - "5672:5672"     # AMQP port
       - "15672:15672"   # Management UI port
+    healthcheck:
+      test:  ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s # every 5 secodns run the commmand
+      timeout: 5s
+      retries: 5 # hwow many consecutive failures before marking the container as unhealthy
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
