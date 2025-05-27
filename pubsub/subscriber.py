@@ -4,7 +4,7 @@ import json
 import pika
 import requests
 from dotenv import load_dotenv
-sys.path.append('..')
+# sys.path.append('..')
 from pubsub.connection import rabbitmq_connection
 
 load_dotenv()
@@ -40,5 +40,5 @@ def subscribe():
     channel.start_consuming()
 
 
-if __name__ == "__main__":
-    subscribe()
+# if __name__ == "__main__":
+subscribe()

@@ -23,7 +23,9 @@ DATABASES = {
         'PORT': int(os.getenv("DB_PORT"))
     }
 }
-
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"  # if you django verison is 4.2+ you should use this else you wont get the statuc files of panel admin
+STATIC_URL = '/static/'
+STATIC_ROOT = '/warelio/static'
 '''
 1- python manage.py migrate
 2- python manage.py createsuperuser
